@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Coffee Savings Tracker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      text-align: center;
+      padding: 50px;
+    }
+    .container {
+      background: white;
+      padding: 40px;
+      border-radius: 10px;
+      display: inline-block;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #333;
+    }
+    .amount {
+      font-size: 2em;
+      color: #28a745;
+      margin: 10px 0;
+    }
+    .section-title {
+      margin-top: 30px;
+      font-size: 1.5em;
+      color: #555;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0 auto;
+      text-align: left;
+      display: inline-block;
+    }
+    li {
+      padding: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Coffee Savings Since May 6, 2025</h1>
+    <div class="amount" id="totalSavings"></div>
+
+    <div class="section-title">Weekly Totals</div>
+    <ul id="weeklyTotals"></ul>
+
+    <div class="section-title">Monthly Totals</div>
+    <ul id="monthlyTotals"></ul>
+  </div>
+
+  <script>
+    const coffeePrice = 5.65;
+    const startDate = new Date('2025-05-06');
+    const today = new Date();
+
+    function addDays(date, days) {
+      const result = new Date(date);
+      result.setDate(result.getDate() + days);
+      return result;
+    }
+
+    function isWeekday(date) {
+      const day = date.getDay();
+      return day >= 1 && day <= 5;
+    }
+
+    const dailyLog = [];
+    let current = new Date(startDate);
+    while (current <= today) {
+      if (isWeekday(current)) {
+        dailyLog.push(new Date(current));
+      }
+      current.setDate(current.getDate() + 1);
+    }
+
+    const totalSaved = (dailyLog.length * coffeePrice).toFixed(2);
+    document.getElementById('totalSavings').innerText = `$${totalSaved}`;
+
+    const weeklyTotals = {};
+    for (let date of dailyLog) {
+      const year = date.getFullYear();
+      const week = getWeekNumber(date);
+      const key = `${year} - Week ${week}`;
+      weeklyTotals[key] = (weeklyTotals[key] || 0) + coffeePrice;
+    }
+
+    const weeklyList = document.getElementById('weeklyTotals');
+    for (const [week, total] of Object.entries(weeklyTotals)) {
+      const item = document.createElement('li');
+      item.textContent = `${week}: $${total.toFixed(2)}`;
+      weeklyList.appendChild(item);
+    }
+
+    const monthlyTotals = {};
+    for (let date of dailyLog) {
+      const key = `${date.getFullYear()} - ${date.toLocaleString('default', { month: 'long' })}`;
+      monthlyTotals[key] = (monthlyTotals[key] || 0) + coffeePrice;
+    }
+
+    const monthlyList = document.getElementById('monthlyTotals');
+    for (const [month, total] of Object.entries(monthlyTotals)) {
+      const item = document.createElement('li');
+      item.textContent = `${month}: $${total.toFixed(2)}`;
+      monthlyList.appendChild(item);
+    }
+
+    function getWeekNumber(d) {
+      d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+      const dayNum = d.getUTCDay() || 7;
+      d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+      const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+      return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+    }
+  </script>
+</body>
+</html>
